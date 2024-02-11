@@ -77,9 +77,12 @@ namespace CDRipperExample
                 using (var waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
 
                 {
+                    float Volume = 2;
                     Console.WriteLine("Now Playing:" + matchingFile);
+                    Console.WriteLine(waveOut.Volume.ToString());
                     waveOut.Init(baStream);
-                    waveOut.Play();
+                    waveOut.Volume = Volume;
+                    waveOut.Play();                    
                     while (waveOut.PlaybackState == PlaybackState.Playing)
                     {
                         Thread.Sleep(100);
@@ -100,8 +103,11 @@ namespace CDRipperExample
             using (var waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
 
             {
+                float mp3Volume = .05f;
                 Console.WriteLine("Now Playing:" + fileName);
                 waveOut.Init(baStream);
+                waveOut.Volume = mp3Volume;
+                Console.WriteLine("Volume: " + waveOut.Volume.ToString());
                 waveOut.Play();
                 while (waveOut.PlaybackState == PlaybackState.Playing)
                 {
