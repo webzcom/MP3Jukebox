@@ -22,6 +22,7 @@ namespace CDRipperExample
             string folderPath = @"M:\";
 
             //Prompt user for a Category and Topic
+            Console.WriteLine("MP3 Finder by Cyber Abyss");
             Console.WriteLine("Hit Enter for Random Song or Enter Your Music Search Text:");
             searchText = Console.ReadLine();
             if (searchText == "")
@@ -130,6 +131,7 @@ namespace CDRipperExample
 
                     fileFound = true;
                     Console.WriteLine(files.Length + " MP3 files found!");
+                    Console.WriteLine("Pickin a Rando # " + randomNumber);
                     foreach (string file in files)
                     {
                         //Console.WriteLine(file);
