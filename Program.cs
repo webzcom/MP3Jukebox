@@ -19,7 +19,7 @@ namespace CDRipperExample
             // Example usage
             string searchText = "";
             string searchParameter = searchText;
-            string folderPath = @"M:\Plex Music\01-80s-Playlist";
+            string folderPath = @"M:\";
 
             //Prompt user for a Category and Topic
             Console.WriteLine("Enter Your Music Search Text:");
@@ -111,20 +111,29 @@ namespace CDRipperExample
         static void SearchFile(string directoryPath, string fileName)
         {
             bool fileFound = false;
+            int iCounter = 0;
             try
             {
                 // Get all files in the directory and subdirectories.
                 string[] files = Directory.GetFiles(directoryPath, "*.mp3", SearchOption.AllDirectories);
                 if (files.Length > 0)
                 {
+                    // Create an instance of the Random class
+                    Random random = new Random();
+                    // Generate a random number between 1 and 100
+                    int randomNumber = random.Next(1, files.Length); // The upper limit is exclusive, so we use 101
+
                     fileFound = true;
                     Console.WriteLine("File(s) found:");
                     foreach (string file in files)
                     {
                         //Console.WriteLine(file);
                         //Thread.Sleep(100);
-                        PlayMP3(file);
-                        //Thread.Sleep(100);
+                        if (randomNumber == iCounter) {
+                            PlayMP3(file);
+                            //Thread.Sleep(100);
+                        }
+                        iCounter++;
                     }
                 }
             }
