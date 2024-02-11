@@ -11,23 +11,25 @@ namespace CDRipperExample
         static void Main(string[] args)
         {
             FindMp3();
-    }
+        }
 
-        public static string FindMp3() {
+        public static string FindMp3()
+        {
 
+            // Example usage
             string searchText = "";
+            string searchParameter = searchText;
+            string folderPath = @"M:\Plex Music\01-80s-Playlist";
+
             //Prompt user for a Category and Topic
             Console.WriteLine("Enter Your Music Search Text:");
             searchText = Console.ReadLine();
             if (searchText == "")
             {
-                searchText = "insane";
+                SearchFile(folderPath, "");
             }
 
 
-            // Example usage
-            string searchParameter = searchText;
-            string folderPath = @"M:\old mp3s";
 
             var filePath = FindMp3FileByName(searchParameter, folderPath);
 
@@ -63,7 +65,8 @@ namespace CDRipperExample
             // Search for the first file that contains the search parameter in its name
             var matchingFile = files.FirstOrDefault(file => Path.GetFileName(file).Contains(searchParameter, StringComparison.OrdinalIgnoreCase));
 
-            if (!string.IsNullOrEmpty(matchingFile)) {
+            if (!string.IsNullOrEmpty(matchingFile))
+            {
                 //using (var ms = File.OpenRead("c:\\temp\\insane.mp3"))
                 using (var ms = File.OpenRead(matchingFile))
                 using (var rdr = new Mp3FileReader(ms))
@@ -81,8 +84,63 @@ namespace CDRipperExample
                     }
                 }
             }
-            FindMp3();
+            //FindMp3();
+
             return matchingFile; // This will be null if no matching file is found
+        }
+
+        static void PlayMP3(string fileName) {
+            //Play MP3
+            using (var ms = File.OpenRead(fileName))
+            using (var rdr = new Mp3FileReader(ms))
+            using (var wavStream = WaveFormatConversionStream.CreatePcmStream(rdr))
+            using (var baStream = new BlockAlignReductionStream(wavStream))
+            using (var waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
+
+            {
+                Console.WriteLine("Now Playing:" + fileName);
+                waveOut.Init(baStream);
+                waveOut.Play();
+                while (waveOut.PlaybackState == PlaybackState.Playing)
+                {
+                    Thread.Sleep(100);
+                }
+            }
+        }       
+
+        static void SearchFile(string directoryPath, string fileName)
+        {
+            bool fileFound = false;
+            try
+            {
+                // Get all files in the directory and subdirectories.
+                string[] files = Directory.GetFiles(directoryPath, "*.mp3", SearchOption.AllDirectories);
+                if (files.Length > 0)
+                {
+                    fileFound = true;
+                    Console.WriteLine("File(s) found:");
+                    foreach (string file in files)
+                    {
+                        //Console.WriteLine(file);
+                        //Thread.Sleep(100);
+                        PlayMP3(file);
+                        //Thread.Sleep(100);
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                Console.WriteLine("You do not have permission to access one or more directories.");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                Console.WriteLine("The specified directory does not exist.");
+            }
+
+            if (!fileFound)
+            {
+                Console.WriteLine("No files found matching the specified name.");
+            }
         }
     }
 }
