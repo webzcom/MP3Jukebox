@@ -10,10 +10,13 @@ namespace CDRipperExample
     {
         static void Main(string[] args)
         {
-            FindMp3();
+            string userVolume = "0.22";
+            Console.WriteLine("Set the Volume: 1.0 is the top. .21 is low, .55 is med, .8 or higher is lourd");
+            userVolume = Console.ReadLine();
+            FindMp3(userVolume);
         }
 
-        public static string FindMp3()
+        public static string FindMp3(string userVolume)
         {
 
             // Example usage
@@ -27,7 +30,7 @@ namespace CDRipperExample
             searchText = Console.ReadLine();
             if (searchText == "")
             {
-                SearchFile(folderPath, "");
+                SearchFile(folderPath, "", userVolume);
             }
 
 
@@ -77,11 +80,9 @@ namespace CDRipperExample
                 using (var waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
 
                 {
-                    float Volume = 2;
                     Console.WriteLine("Now Playing:" + matchingFile);
                     Console.WriteLine(waveOut.Volume.ToString());
                     waveOut.Init(baStream);
-                    waveOut.Volume = Volume;
                     waveOut.Play();                    
                     while (waveOut.PlaybackState == PlaybackState.Playing)
                     {
@@ -94,7 +95,7 @@ namespace CDRipperExample
             return matchingFile; // This will be null if no matching file is found
         }
 
-        static void PlayMP3(string directoryPath, string fileName) {
+        static void PlayMP3(string directoryPath, string fileName, string userVolume) {
             //Play MP3
             using (var ms = File.OpenRead(fileName))
             using (var rdr = new Mp3FileReader(ms))
@@ -103,7 +104,9 @@ namespace CDRipperExample
             using (var waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
 
             {
-                float mp3Volume = .05f;
+
+                //float mp3Volume = 0.19f;
+                float mp3Volume = float.Parse(userVolume);
                 Console.WriteLine("Now Playing:" + fileName);
                 waveOut.Init(baStream);
                 waveOut.Volume = mp3Volume;
@@ -114,13 +117,13 @@ namespace CDRipperExample
                     Thread.Sleep(100);
                 }
 
-                SearchFile(directoryPath, fileName);
+                SearchFile(directoryPath, fileName, userVolume);
             }
 
             
         }       
 
-        static void SearchFile(string directoryPath, string fileName)
+        static void SearchFile(string directoryPath, string fileName, string userVolume)
         {
             bool fileFound = false;
             int iCounter = 0;
@@ -143,7 +146,7 @@ namespace CDRipperExample
                         //Console.WriteLine(file);
                         //Thread.Sleep(100);
                         if (randomNumber == iCounter) {
-                            PlayMP3(directoryPath, file);
+                            PlayMP3(directoryPath, file, userVolume);
                             //Thread.Sleep(100);
                         }
                         iCounter++;
