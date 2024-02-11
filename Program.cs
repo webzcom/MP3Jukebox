@@ -104,9 +104,12 @@ namespace CDRipperExample
             using (var waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
 
             {
-
-                //float mp3Volume = 0.19f;
-                float mp3Volume = float.Parse(userVolume);
+                float mp3Volume = 0.15f;
+                if (userVolume != "")
+                {
+                    mp3Volume = float.Parse(userVolume);
+                }
+                
                 Console.WriteLine("Now Playing:" + fileName);
                 waveOut.Init(baStream);
                 waveOut.Volume = mp3Volume;
