@@ -22,7 +22,7 @@ namespace CDRipperExample
             string folderPath = @"M:\";
 
             //Prompt user for a Category and Topic
-            Console.WriteLine("Enter Your Music Search Text:");
+            Console.WriteLine("Hit Enter for Random Song or Enter Your Music Search Text:");
             searchText = Console.ReadLine();
             if (searchText == "")
             {
@@ -41,6 +41,7 @@ namespace CDRipperExample
             {
                 Console.WriteLine("No file found matching the search parameter.");
             }
+
             return filePath;
         }
 
@@ -89,7 +90,7 @@ namespace CDRipperExample
             return matchingFile; // This will be null if no matching file is found
         }
 
-        static void PlayMP3(string fileName) {
+        static void PlayMP3(string directoryPath, string fileName) {
             //Play MP3
             using (var ms = File.OpenRead(fileName))
             using (var rdr = new Mp3FileReader(ms))
@@ -105,7 +106,11 @@ namespace CDRipperExample
                 {
                     Thread.Sleep(100);
                 }
+
+                SearchFile(directoryPath, fileName);
             }
+
+            
         }       
 
         static void SearchFile(string directoryPath, string fileName)
@@ -124,13 +129,13 @@ namespace CDRipperExample
                     int randomNumber = random.Next(1, files.Length); // The upper limit is exclusive, so we use 101
 
                     fileFound = true;
-                    Console.WriteLine("File(s) found:");
+                    Console.WriteLine(files.Length + " MP3 files found!");
                     foreach (string file in files)
                     {
                         //Console.WriteLine(file);
                         //Thread.Sleep(100);
                         if (randomNumber == iCounter) {
-                            PlayMP3(file);
+                            PlayMP3(directoryPath, file);
                             //Thread.Sleep(100);
                         }
                         iCounter++;
