@@ -8,24 +8,35 @@ namespace CDRipperExample
 {
     class Program
     {
+
         static void Main(string[] args)
         {
-            string userVolume = "0.22";
-            Console.WriteLine("Set the Volume: 1.0 is the top. .21 is low, .55 is med, .8 or higher is lourd");
+            string userVolume = "0.21";
+            string driveLetter = "M:\\";
+            string tempDriveLetter = "";            
+            Console.WriteLine("MP3 Finder by Cyber Abyss");
+            Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Defaut: " + userVolume);
             userVolume = Console.ReadLine();
-            FindMp3(userVolume);
+            Console.WriteLine("Enter the Drive Letter to Search:");
+            tempDriveLetter = Console.ReadLine();
+            if (!string.IsNullOrEmpty(tempDriveLetter)) {
+                tempDriveLetter = tempDriveLetter + ":\\";
+                driveLetter = tempDriveLetter;
+            }
+
+                FindMp3(userVolume, driveLetter);
         }
 
-        public static string FindMp3(string userVolume)
+        public static string FindMp3(string userVolume, string driveLetter)
         {
 
             // Example usage
             string searchText = "";
             string searchParameter = searchText;
-            string folderPath = @"M:\";
+            //string folderPath = @"M:\";
+            string folderPath = driveLetter;
 
             //Prompt user for a Category and Topic
-            Console.WriteLine("MP3 Finder by Cyber Abyss");
             Console.WriteLine("Hit Enter for Random Song or Enter Your Music Search Text:");
             searchText = Console.ReadLine();
             if (searchText == "")
