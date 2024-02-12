@@ -35,7 +35,6 @@ namespace CDRipperExample
             // Example usage
             string searchText = "";
             string searchParameter = searchText;
-            //string folderPath = @"M:\";
             string folderPath = audioFile.DriveLetter;
 
             //Prompt user for a Category and Topic
