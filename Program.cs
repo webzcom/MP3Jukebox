@@ -9,13 +9,14 @@ namespace CDRipperExample
     class Program
     {
 
-        static void Main(string[] args)
+        static void Main(string[] args) 
         {
+ 
             string userVolume = "0.21";
             string driveLetter = "M:\\";
             string tempDriveLetter = "";            
             Console.WriteLine("MP3 Finder by Cyber Abyss");
-            Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Defaut: " + userVolume);
+            Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Defaut: " + userVolume + ")");
             userVolume = Console.ReadLine();
             Console.WriteLine("Enter the Drive Letter to Search:");
             tempDriveLetter = Console.ReadLine();
@@ -24,24 +25,30 @@ namespace CDRipperExample
                 driveLetter = tempDriveLetter;
             }
 
-                FindMp3(userVolume, driveLetter);
+            //Create an AudioFile Object that can hold all the data we need as we pass it thru the methods
+            AudioFile tempAudioFile = new AudioFile();
+            tempAudioFile.Volume = userVolume;
+            tempAudioFile.DriveLetter = driveLetter;
+
+                FindMp3(tempAudioFile);
         }
 
-        public static string FindMp3(string userVolume, string driveLetter)
+        public static string FindMp3(AudioFile tempAudioFile)
         {
-
+            
             // Example usage
             string searchText = "";
             string searchParameter = searchText;
             //string folderPath = @"M:\";
-            string folderPath = driveLetter;
+            string folderPath = tempAudioFile.DriveLetter;
 
             //Prompt user for a Category and Topic
             Console.WriteLine("Hit Enter for Random Song or Enter Your Music Search Text:");
             searchText = Console.ReadLine();
             if (searchText == "")
             {
-                SearchFile(folderPath, "", userVolume);
+                //SearchFile(folderPath, "", tempAudioFile.Volume);
+                SearchFile(tempAudioFile);
             }
 
 
@@ -106,9 +113,9 @@ namespace CDRipperExample
             return matchingFile; // This will be null if no matching file is found
         }
 
-        static void PlayMP3(string directoryPath, string fileName, string userVolume) {
+        static void PlayMP3(AudioFile tempAudioFile) {
             //Play MP3
-            using (var ms = File.OpenRead(fileName))
+            using (var ms = File.OpenRead(tempAudioFile.FilePath))
             using (var rdr = new Mp3FileReader(ms))
             using (var wavStream = WaveFormatConversionStream.CreatePcmStream(rdr))
             using (var baStream = new BlockAlignReductionStream(wavStream))
@@ -116,12 +123,12 @@ namespace CDRipperExample
 
             {
                 float mp3Volume = 0.15f;
-                if (userVolume != "")
+                if (tempAudioFile.Volume != "")
                 {
-                    mp3Volume = float.Parse(userVolume);
+                    mp3Volume = float.Parse(tempAudioFile.Volume);
                 }
                 
-                Console.WriteLine("Now Playing:" + fileName);
+                Console.WriteLine("Now Playing:" + tempAudioFile.FilePath);
                 waveOut.Init(baStream);
                 waveOut.Volume = mp3Volume;
                 Console.WriteLine("Volume: " + waveOut.Volume.ToString());
@@ -131,20 +138,29 @@ namespace CDRipperExample
                     Thread.Sleep(100);
                 }
 
-                SearchFile(directoryPath, fileName, userVolume);
+                Console.WriteLine("Press ESC to stop");
+                do
+                {
+                    while (!Console.KeyAvailable)
+                    {
+                        // Do something
+                        SearchFile(tempAudioFile);
+                    }
+                } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
+                
             }
-
             
         }       
 
-        static void SearchFile(string directoryPath, string fileName, string userVolume)
+        static void SearchFile(AudioFile tempAudioFile)
         {
             bool fileFound = false;
             int iCounter = 0;
+            
             try
             {
                 // Get all files in the directory and subdirectories.
-                string[] files = Directory.GetFiles(directoryPath, "*.mp3", SearchOption.AllDirectories);
+                string[] files = Directory.GetFiles(tempAudioFile.DriveLetter, "*.mp3", SearchOption.AllDirectories);
                 if (files.Length > 0)
                 {
                     // Create an instance of the Random class
@@ -160,7 +176,8 @@ namespace CDRipperExample
                         //Console.WriteLine(file);
                         //Thread.Sleep(100);
                         if (randomNumber == iCounter) {
-                            PlayMP3(directoryPath, file, userVolume);
+                            tempAudioFile.FilePath = file;
+                            PlayMP3(tempAudioFile);
                             //Thread.Sleep(100);
                         }
                         iCounter++;
