@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using NAudio.Wave;
 using System.Linq;
+using TagLib;
 
 namespace MP3Jukebox
 {
@@ -10,16 +11,18 @@ namespace MP3Jukebox
     {
         static void Main(string[] args) 
         {
-            string userVolume = "0.11";
+            string userVolume = "";
+            string defaultVolume = "0.05";
             string driveLetter = "M:\\";
             string tempDriveLetter = "";
             string searchText = "";
             Console.WriteLine("MP3 Jukebox by Cyber Abyss running as " + Environment.UserName);
             Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Default: " + userVolume + ")");
-            if(!string.IsNullOrEmpty(Console.ReadLine())){
-                userVolume = Console.ReadLine();
+            userVolume = Console.ReadLine();
+            if (string.IsNullOrEmpty(userVolume)) {
+                userVolume = defaultVolume;
             }
-            
+                   
             Console.WriteLine("Enter the Drive Letter to Search:");
             tempDriveLetter = Console.ReadLine();
             if (!string.IsNullOrEmpty(tempDriveLetter)) {
@@ -112,7 +115,7 @@ namespace MP3Jukebox
 
             if (!string.IsNullOrEmpty(matchingFile))
             {
-                using (var ms = File.OpenRead(matchingFile))
+                using (var ms = System.IO.File.OpenRead(matchingFile))
                 using (var rdr = new Mp3FileReader(ms))
                 using (var wavStream = WaveFormatConversionStream.CreatePcmStream(rdr))
                 using (var baStream = new BlockAlignReductionStream(wavStream))
@@ -147,17 +150,20 @@ namespace MP3Jukebox
                 tempCounter = audioFile.RandomNumber - 1;
             }
 
-            using (var ms = File.OpenRead(audioFile.AudioFileCollection[tempCounter]))
+            using (var ms = System.IO.File.OpenRead(audioFile.AudioFileCollection[tempCounter]))
             using (var rdr = new Mp3FileReader(ms))
             using (var wavStream = WaveFormatConversionStream.CreatePcmStream(rdr))
             using (var baStream = new BlockAlignReductionStream(wavStream))
             using (var waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
 
             {
-                float mp3Volume = 0.15f;
-                if (audioFile.Volume != "")
+                float mp3Volume = 0.05f;
+                if (!string.IsNullOrEmpty(audioFile.Volume))
                 {
                     mp3Volume = float.Parse(audioFile.Volume);
+                }
+                else {
+                    mp3Volume = 0.05f;
                 }
 
 
@@ -190,8 +196,39 @@ namespace MP3Jukebox
                 
             }
             
-        }       
+        }
 
-        
+
+        public class MetadataExtractor
+        {
+            public static string GetAlbumArtist(string filePath)
+            {
+                try
+                {
+                    // Load the file
+                    var file = TagLib.File.Create(filePath);
+
+                    // Check if album artists array is not null or empty
+                    if (file.Tag.AlbumArtists != null && file.Tag.AlbumArtists.Length > 0)
+                    {
+                        // Return the first album artist found
+                        return file.Tag.AlbumArtists[0];
+                    }
+                    else
+                    {
+                        // No album artist found, return a default message or handle accordingly
+                        return "Album artist not found";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Handle exceptions (e.g., file not found, access denied)
+                    Console.WriteLine($"Error reading file: {ex.Message}");
+                    return "Error retrieving album artist";
+                }
+            }
+        }
+
+
     }
 }
