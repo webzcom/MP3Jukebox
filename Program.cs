@@ -131,8 +131,19 @@ namespace MP3Jukebox
         }
 
         static void PlayMP3(AudioFile audioFile) {
+            int tempCounter = 0;
             //Play MP3
-            using (var ms = File.OpenRead(audioFile.AudioFileCollection[audioFile.RandomNumber-1]))
+            //if search term was used, don't use the random number
+            if (!string.IsNullOrEmpty(audioFile.SearchTerm))
+            {
+                tempCounter = audioFile.CustomCollectionCounter;
+                audioFile.CustomCollectionCounter = audioFile.CustomCollectionCounter++;
+            }
+            else
+            {
+                tempCounter = audioFile.RandomNumber - 1;
+            }
+            using (var ms = File.OpenRead(audioFile.AudioFileCollection[tempCounter]))
             using (var rdr = new Mp3FileReader(ms))
             using (var wavStream = WaveFormatConversionStream.CreatePcmStream(rdr))
             using (var baStream = new BlockAlignReductionStream(wavStream))
@@ -144,8 +155,9 @@ namespace MP3Jukebox
                 {
                     mp3Volume = float.Parse(audioFile.Volume);
                 }
-                
-                Console.WriteLine("Now Playing:" + audioFile.AudioFileCollection[audioFile.RandomNumber-1]);
+
+
+                Console.WriteLine("Now Playing:" + audioFile.AudioFileCollection[tempCounter]);
                 waveOut.Init(baStream);
                 waveOut.Volume = mp3Volume;
                 Console.WriteLine("Volume: " + waveOut.Volume.ToString());
