@@ -14,5 +14,6 @@ namespace CDRipperExample
         public string UserHomeFolder { get; set; }
         public string[] AudioFileCollection { get; set; }
         public int RandomNumber { get; set; }
+        public string SearchTerm { get; set; }
     }
 }
