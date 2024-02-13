@@ -10,13 +10,16 @@ namespace MP3Jukebox
     {
         static void Main(string[] args) 
         {
-            string userVolume = "0.21";
+            string userVolume = "0.11";
             string driveLetter = "M:\\";
             string tempDriveLetter = "";
             string searchText = "";
             Console.WriteLine("MP3 Jukebox by Cyber Abyss running as " + Environment.UserName);
             Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Default: " + userVolume + ")");
-            userVolume = Console.ReadLine();
+            if(!string.IsNullOrEmpty(Console.ReadLine())){
+                userVolume = Console.ReadLine();
+            }
+            
             Console.WriteLine("Enter the Drive Letter to Search:");
             tempDriveLetter = Console.ReadLine();
             if (!string.IsNullOrEmpty(tempDriveLetter)) {
@@ -26,6 +29,7 @@ namespace MP3Jukebox
 
             //Create an AudioFile Object that can hold all the data we need as we pass it thru the methods
             AudioFile audioFile = new AudioFile();
+            audioFile.CustomCollectionCounter = 0;
             audioFile.Volume = userVolume;
             audioFile.DriveLetter = driveLetter;
             audioFile.CurrentUser = Environment.UserName;
@@ -108,7 +112,6 @@ namespace MP3Jukebox
 
             if (!string.IsNullOrEmpty(matchingFile))
             {
-                //using (var ms = File.OpenRead("c:\\temp\\insane.mp3"))
                 using (var ms = File.OpenRead(matchingFile))
                 using (var rdr = new Mp3FileReader(ms))
                 using (var wavStream = WaveFormatConversionStream.CreatePcmStream(rdr))
@@ -132,17 +135,18 @@ namespace MP3Jukebox
 
         static void PlayMP3(AudioFile audioFile) {
             int tempCounter = 0;
+    
             //Play MP3
             //if search term was used, don't use the random number
             if (!string.IsNullOrEmpty(audioFile.SearchTerm))
             {
                 tempCounter = audioFile.CustomCollectionCounter;
-                audioFile.CustomCollectionCounter = audioFile.CustomCollectionCounter++;
             }
             else
             {
                 tempCounter = audioFile.RandomNumber - 1;
             }
+
             using (var ms = File.OpenRead(audioFile.AudioFileCollection[tempCounter]))
             using (var rdr = new Mp3FileReader(ms))
             using (var wavStream = WaveFormatConversionStream.CreatePcmStream(rdr))
@@ -165,6 +169,13 @@ namespace MP3Jukebox
                 while (waveOut.PlaybackState == PlaybackState.Playing)
                 {
                     Thread.Sleep(100);
+                }
+
+
+                //Increment the counter if we are using a custom colleciton
+                if (!string.IsNullOrEmpty(audioFile.SearchTerm))
+                {
+                    audioFile.CustomCollectionCounter = audioFile.CustomCollectionCounter + 1;
                 }
 
                 Console.WriteLine("Press ESC to stop");
