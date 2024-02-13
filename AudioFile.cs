@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CDRipperExample
+namespace MP3Jukebox
 {
     class AudioFile
     {
