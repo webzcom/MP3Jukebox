@@ -65,7 +65,7 @@ namespace MP3Jukebox
 
                     fileFound = true;
                     Console.WriteLine(audioFile.AudioFileCollection.Length + " MP3 files found!");
-                    Console.WriteLine("Pickin a Rando # " + randomNumber);
+                    //Console.WriteLine("Pickin a Rando # " + randomNumber);
                     audioFile.RandomNumber = randomNumber;
                     PlayMP3(audioFile);
                 }
