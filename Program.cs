@@ -168,20 +168,6 @@ namespace CDRipperExample
                     Console.WriteLine("Pickin a Rando # " + randomNumber);
                     audioFile.RandomNumber = randomNumber;
                     PlayMP3(audioFile);
-                    /*
-                    foreach (string file in files)
-                    {
-                        //Console.WriteLine(file);
-                        //Thread.Sleep(100);
-                        if (randomNumber == iCounter) {
-                            audioFile.FilePath = file;
-                            PlayMP3(audioFile);
-                            //Thread.Sleep(100);
-                        }
-                        iCounter++;
-                    
-                    }
-                    */
                 }
             }
             catch (UnauthorizedAccessException)
