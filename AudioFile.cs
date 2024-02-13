@@ -10,6 +10,9 @@ namespace CDRipperExample
         public string Volume { get; set; }
         public string DriveLetter { get; set; }
         public string FilePath { get; set; }
-
+        public string CurrentUser { get; set; }
+        public string UserHomeFolder { get; set; }
+        public string[] AudioFileCollection { get; set; }
+        public int RandomNumber { get; set; }
     }
 }
