@@ -13,7 +13,7 @@ namespace CDRipperExample
             string userVolume = "0.21";
             string driveLetter = "M:\\";
             string tempDriveLetter = "";            
-            Console.WriteLine("MP3 Finder by Cyber Abyss running as" + Environment.UserName);
+            Console.WriteLine("MP3 Finder by Cyber Abyss running as " + Environment.UserName);
             Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Defaut: " + userVolume + ")");
             userVolume = Console.ReadLine();
             Console.WriteLine("Enter the Drive Letter to Search:");
@@ -154,17 +154,26 @@ namespace CDRipperExample
             try
             {
                 // Get all files in the directory and subdirectories.
-                string[] files = Directory.GetFiles(audioFile.DriveLetter, "*.mp3", SearchOption.AllDirectories);
-                audioFile.AudioFileCollection = files;
-                if (files.Length > 0)
+                if (audioFile.AudioFileCollection == null || audioFile.AudioFileCollection.Length == 0)
+                {
+                    string[] files = Directory.GetFiles(audioFile.DriveLetter, "*.mp3", SearchOption.AllDirectories);
+                    audioFile.AudioFileCollection = files;
+                }
+                else { 
+                    //Don't do anything for npow
+                }
+
+                //string[] files = Directory.GetFiles(audioFile.DriveLetter, "*.mp3", SearchOption.AllDirectories);
+                
+                if (audioFile.AudioFileCollection.Length > 0)
                 {
                     // Create an instance of the Random class
                     Random random = new Random();
                     // Generate a random number between 1 and 100
-                    int randomNumber = random.Next(1, files.Length); // The upper limit is exclusive, so we use 101
+                    int randomNumber = random.Next(1, audioFile.AudioFileCollection.Length); // The upper limit is exclusive, so we use 101
 
                     fileFound = true;
-                    Console.WriteLine(files.Length + " MP3 files found!");
+                    Console.WriteLine(audioFile.AudioFileCollection.Length + " MP3 files found!");
                     Console.WriteLine("Pickin a Rando # " + randomNumber);
                     audioFile.RandomNumber = randomNumber;
                     PlayMP3(audioFile);
