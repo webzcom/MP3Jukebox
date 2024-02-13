@@ -177,6 +177,11 @@ namespace MP3Jukebox
                     Thread.Sleep(100);
                 }
 
+                //If we hit the end of the custom collection return the main menu and start again
+                if (audioFile.CustomCollectionCounter + 1 == audioFile.AudioFileCollection.Length) {
+                    Main(null);
+                }
+                    
 
                 //Increment the counter if we are using a custom colleciton
                 if (!string.IsNullOrEmpty(audioFile.SearchTerm))
