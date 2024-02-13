@@ -35,9 +35,55 @@ namespace CDRipperExample
             searchText = Console.ReadLine();
             audioFile.SearchTerm = searchText;
             SearchFile(audioFile);
-
         }
 
+
+        static void SearchFile(AudioFile audioFile)
+        {
+            bool fileFound = false;
+
+            try
+            {
+                // Get all files in the directory and subdirectories.
+                if (audioFile.AudioFileCollection == null || audioFile.AudioFileCollection.Length == 0)
+                {
+                    string[] files = Directory.GetFiles(audioFile.DriveLetter, "*.mp3", SearchOption.AllDirectories);
+                    audioFile.AudioFileCollection = files;
+                }
+                if (!string.IsNullOrEmpty(audioFile.SearchTerm))
+                {
+                    string[] files = Directory.GetFiles(audioFile.DriveLetter, "*" + audioFile.SearchTerm + ".mp3", SearchOption.AllDirectories);
+                    audioFile.AudioFileCollection = files;
+                }
+
+                if (audioFile.AudioFileCollection.Length > 0)
+                {
+                    // Create an instance of the Random class
+                    Random random = new Random();
+                    // Generate a random number between 1 and 100
+                    int randomNumber = random.Next(1, audioFile.AudioFileCollection.Length); // The upper limit is exclusive, so we use 101
+
+                    fileFound = true;
+                    Console.WriteLine(audioFile.AudioFileCollection.Length + " MP3 files found!");
+                    Console.WriteLine("Pickin a Rando # " + randomNumber);
+                    audioFile.RandomNumber = randomNumber;
+                    PlayMP3(audioFile);
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                Console.WriteLine("You do not have permission to access one or more directories.");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                Console.WriteLine("The specified directory does not exist.");
+            }
+
+            if (!fileFound)
+            {
+                Console.WriteLine("No files found matching the specified name.");
+            }
+        }
 
         /// <summary>
         /// Searches for an MP3 file in the specified folder that contains the given search parameter in its name.
@@ -86,7 +132,7 @@ namespace CDRipperExample
 
         static void PlayMP3(AudioFile audioFile) {
             //Play MP3
-            using (var ms = File.OpenRead(audioFile.AudioFileCollection[audioFile.RandomNumber]))
+            using (var ms = File.OpenRead(audioFile.AudioFileCollection[audioFile.RandomNumber-1]))
             using (var rdr = new Mp3FileReader(ms))
             using (var wavStream = WaveFormatConversionStream.CreatePcmStream(rdr))
             using (var baStream = new BlockAlignReductionStream(wavStream))
@@ -99,7 +145,7 @@ namespace CDRipperExample
                     mp3Volume = float.Parse(audioFile.Volume);
                 }
                 
-                Console.WriteLine("Now Playing:" + audioFile.AudioFileCollection[audioFile.RandomNumber]);
+                Console.WriteLine("Now Playing:" + audioFile.AudioFileCollection[audioFile.RandomNumber-1]);
                 waveOut.Init(baStream);
                 waveOut.Volume = mp3Volume;
                 Console.WriteLine("Volume: " + waveOut.Volume.ToString());
@@ -123,52 +169,6 @@ namespace CDRipperExample
             
         }       
 
-        static void SearchFile(AudioFile audioFile)
-        {
-            bool fileFound = false;
-            //int iCounter = 0;
-            
-            try
-            {
-                // Get all files in the directory and subdirectories.
-                if (audioFile.AudioFileCollection == null || audioFile.AudioFileCollection.Length == 0)
-                {
-                    string[] files = Directory.GetFiles(audioFile.DriveLetter, "*.mp3", SearchOption.AllDirectories);
-                    audioFile.AudioFileCollection = files;
-                }
-                else { 
-                    //Don't do anything for npow
-                }
-
-                //string[] files = Directory.GetFiles(audioFile.DriveLetter, "*.mp3", SearchOption.AllDirectories);
-                
-                if (audioFile.AudioFileCollection.Length > 0)
-                {
-                    // Create an instance of the Random class
-                    Random random = new Random();
-                    // Generate a random number between 1 and 100
-                    int randomNumber = random.Next(1, audioFile.AudioFileCollection.Length); // The upper limit is exclusive, so we use 101
-
-                    fileFound = true;
-                    Console.WriteLine(audioFile.AudioFileCollection.Length + " MP3 files found!");
-                    Console.WriteLine("Pickin a Rando # " + randomNumber);
-                    audioFile.RandomNumber = randomNumber;
-                    PlayMP3(audioFile);
-                }
-            }
-            catch (UnauthorizedAccessException)
-            {
-                Console.WriteLine("You do not have permission to access one or more directories.");
-            }
-            catch (DirectoryNotFoundException)
-            {
-                Console.WriteLine("The specified directory does not exist.");
-            }
-
-            if (!fileFound)
-            {
-                Console.WriteLine("No files found matching the specified name.");
-            }
-        }
+        
     }
 }
