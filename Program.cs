@@ -12,9 +12,10 @@ namespace CDRipperExample
         {
             string userVolume = "0.21";
             string driveLetter = "M:\\";
-            string tempDriveLetter = "";            
+            string tempDriveLetter = "";
+            string searchText = "";
             Console.WriteLine("MP3 Finder by Cyber Abyss running as " + Environment.UserName);
-            Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Defaut: " + userVolume + ")");
+            Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Default: " + userVolume + ")");
             userVolume = Console.ReadLine();
             Console.WriteLine("Enter the Drive Letter to Search:");
             tempDriveLetter = Console.ReadLine();
@@ -28,39 +29,15 @@ namespace CDRipperExample
             audioFile.Volume = userVolume;
             audioFile.DriveLetter = driveLetter;
             audioFile.CurrentUser = Environment.UserName;
-            audioFile.UserHomeFolder = "C:\\Users\\" + Environment.UserName + "\\"; 
-            FindMp3(audioFile);
-        }
-
-        public static string FindMp3(AudioFile audioFile)
-        {            
-            // Example usage
-            string searchText = "";
-            string searchParameter = searchText;
-            string folderPath = audioFile.DriveLetter;
-
+            audioFile.UserHomeFolder = "C:\\Users\\" + Environment.UserName + "\\";
             //Prompt user for a Category and Topic
             Console.WriteLine("Hit Enter for Random Song or Enter Your Music Search Text:");
             searchText = Console.ReadLine();
-            if (searchText == "")
-            {
-                //SearchFile(folderPath, "", tempAudioFile.Volume);
-                SearchFile(audioFile);
-            }
+            audioFile.SearchTerm = searchText;
+            SearchFile(audioFile);
 
-            var filePath = FindMp3FileByName(searchParameter, folderPath);
-
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                Console.WriteLine($"File found: {filePath}");
-            }
-            else
-            {
-                Console.WriteLine("No file found matching the search parameter.");
-            }
-
-            return filePath;
         }
+
 
         /// <summary>
         /// Searches for an MP3 file in the specified folder that contains the given search parameter in its name.
