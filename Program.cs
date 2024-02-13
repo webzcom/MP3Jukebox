@@ -4,7 +4,7 @@ using System.Threading;
 using NAudio.Wave;
 using System.Linq;
 
-namespace CDRipperExample
+namespace MP3Jukebox
 {
     class Program
     {
@@ -14,7 +14,7 @@ namespace CDRipperExample
             string driveLetter = "M:\\";
             string tempDriveLetter = "";
             string searchText = "";
-            Console.WriteLine("MP3 Finder by Cyber Abyss running as " + Environment.UserName);
+            Console.WriteLine("MP3 Jukebox by Cyber Abyss running as " + Environment.UserName);
             Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Default: " + userVolume + ")");
             userVolume = Console.ReadLine();
             Console.WriteLine("Enter the Drive Letter to Search:");
@@ -52,7 +52,7 @@ namespace CDRipperExample
                 }
                 if (!string.IsNullOrEmpty(audioFile.SearchTerm))
                 {
-                    string[] files = Directory.GetFiles(audioFile.DriveLetter, "*" + audioFile.SearchTerm + ".mp3", SearchOption.AllDirectories);
+                    string[] files = Directory.GetFiles(audioFile.DriveLetter, "*" + audioFile.SearchTerm + "*.mp3", SearchOption.AllDirectories);
                     audioFile.AudioFileCollection = files;
                 }
 
