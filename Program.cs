@@ -17,7 +17,7 @@ namespace MP3Jukebox
             string tempDriveLetter = "";
             string searchText = "";
             Console.WriteLine("MP3 Jukebox by Cyber Abyss running as " + Environment.UserName);
-            Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Default: " + userVolume + ")");
+            Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Default: " + defaultVolume + ")");
             userVolume = Console.ReadLine();
             if (string.IsNullOrEmpty(userVolume)) {
                 userVolume = defaultVolume;
@@ -168,6 +168,7 @@ namespace MP3Jukebox
 
 
                 Console.WriteLine("Now Playing:" + audioFile.AudioFileCollection[tempCounter]);
+                Console.WriteLine(MetadataExtractor.GetAlbumArtist(audioFile.AudioFileCollection[tempCounter]));
                 waveOut.Init(baStream);
                 waveOut.Volume = mp3Volume;
                 Console.WriteLine("Volume: " + waveOut.Volume.ToString());
