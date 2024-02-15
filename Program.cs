@@ -11,17 +11,17 @@ namespace MP3Jukebox
     {
         static void Main(string[] args) 
         {
+            Console.ForegroundColor = ConsoleColor.Green;
             string userVolume = "";
             string defaultVolume = "0.05";
-            //string driveLetter = "M:\\";
             string searchText = "";
             Console.WriteLine("MP3 Jukebox by Cyber Abyss running as " + Environment.UserName);
             Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Default: " + defaultVolume + ")");
+            Console.ForegroundColor = ConsoleColor.Blue;
             userVolume = Console.ReadLine();
             if (string.IsNullOrEmpty(userVolume)) {
                 userVolume = defaultVolume;
-            }                        
-            
+            };
 
             //Create an AudioFile Object that can hold all the data we need as we pass it thru the methods
             AudioFile audioFile = new AudioFile();
@@ -32,17 +32,22 @@ namespace MP3Jukebox
             audioFile.UserHomeFolder = "C:\\Users\\" + Environment.UserName + "\\";
             GetDriveLetter(audioFile);
             //Prompt user for a Category and Topic
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Hit Enter for Random Song or Enter Your Music Search Text:");
+            Console.ForegroundColor = ConsoleColor.Blue;
             searchText = Console.ReadLine();
             audioFile.SearchTerm = searchText;
             SearchFile(audioFile);
         }
 
+
         public static void GetDriveLetter(AudioFile audioFile){
             string tempDriveLetter = "";
 
             if (string.IsNullOrEmpty(audioFile.DriveLetter)){
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Enter the Drive Letter to Search:");
+                Console.ForegroundColor = ConsoleColor.Blue;
                 tempDriveLetter = Console.ReadLine();
                 if (string.IsNullOrEmpty(tempDriveLetter) || tempDriveLetter.Length > 1)
                 {
@@ -54,13 +59,8 @@ namespace MP3Jukebox
                     audioFile.DriveLetter = tempDriveLetter + ":\\";
                     return;
                 }
-            }     
-
-            
+            }                 
         }
-
-            
-        
 
 
         static void SearchFile(AudioFile audioFile)
@@ -89,6 +89,7 @@ namespace MP3Jukebox
                     int randomNumber = random.Next(1, audioFile.AudioFileCollection.Length); // The upper limit is exclusive, so we use 101
 
                     fileFound = true;
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(audioFile.AudioFileCollection.Length + " MP3 files found!");
                     //Console.WriteLine("Pickin a Rando # " + randomNumber);
                     audioFile.RandomNumber = randomNumber;
@@ -140,6 +141,7 @@ namespace MP3Jukebox
                 using (var waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
 
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Now Playing:" + matchingFile);
                     Console.WriteLine(waveOut.Volume.ToString());
                     waveOut.Init(baStream);
@@ -184,7 +186,7 @@ namespace MP3Jukebox
                     mp3Volume = 0.05f;
                 }
 
-
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Now Playing:" + audioFile.AudioFileCollection[tempCounter]);
                 Console.WriteLine(MetadataExtractor.GetAlbumArtist(audioFile.AudioFileCollection[tempCounter]));
                 waveOut.Init(baStream);
@@ -199,8 +201,7 @@ namespace MP3Jukebox
                 //If we hit the end of the custom collection return the main menu and start again
                 if (audioFile.CustomCollectionCounter + 1 == audioFile.AudioFileCollection.Length) {
                     Main(null);
-                }
-                    
+                }                    
 
                 //Increment the counter if we are using a custom colleciton
                 if (!string.IsNullOrEmpty(audioFile.SearchTerm))
