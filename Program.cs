@@ -13,36 +13,53 @@ namespace MP3Jukebox
         {
             string userVolume = "";
             string defaultVolume = "0.05";
-            string driveLetter = "M:\\";
-            string tempDriveLetter = "";
+            //string driveLetter = "M:\\";
             string searchText = "";
             Console.WriteLine("MP3 Jukebox by Cyber Abyss running as " + Environment.UserName);
             Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Default: " + defaultVolume + ")");
             userVolume = Console.ReadLine();
             if (string.IsNullOrEmpty(userVolume)) {
                 userVolume = defaultVolume;
-            }
-                   
-            Console.WriteLine("Enter the Drive Letter to Search:");
-            tempDriveLetter = Console.ReadLine();
-            if (!string.IsNullOrEmpty(tempDriveLetter)) {
-                tempDriveLetter = tempDriveLetter + ":\\";
-                driveLetter = tempDriveLetter;
-            }
+            }                        
+            
 
             //Create an AudioFile Object that can hold all the data we need as we pass it thru the methods
             AudioFile audioFile = new AudioFile();
             audioFile.CustomCollectionCounter = 0;
             audioFile.Volume = userVolume;
-            audioFile.DriveLetter = driveLetter;
+            //audioFile.DriveLetter = driveLetter;
             audioFile.CurrentUser = Environment.UserName;
             audioFile.UserHomeFolder = "C:\\Users\\" + Environment.UserName + "\\";
+            GetDriveLetter(audioFile);
             //Prompt user for a Category and Topic
             Console.WriteLine("Hit Enter for Random Song or Enter Your Music Search Text:");
             searchText = Console.ReadLine();
             audioFile.SearchTerm = searchText;
             SearchFile(audioFile);
         }
+
+        public static void GetDriveLetter(AudioFile audioFile){
+            string tempDriveLetter = "";
+
+            if (string.IsNullOrEmpty(audioFile.DriveLetter)){
+                Console.WriteLine("Enter the Drive Letter to Search:");
+                tempDriveLetter = Console.ReadLine();
+                if (string.IsNullOrEmpty(tempDriveLetter) || tempDriveLetter.Length > 1)
+                {
+                    Console.WriteLine("Your Drive Letter Doesn't Look Right, Try Again. Single Character Only Please.");
+                    GetDriveLetter(audioFile);
+                }
+                else
+                {
+                    audioFile.DriveLetter = tempDriveLetter + ":\\";
+                }
+            }     
+
+            
+        }
+
+            
+        
 
 
         static void SearchFile(AudioFile audioFile)
