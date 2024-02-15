@@ -52,6 +52,7 @@ namespace MP3Jukebox
                 else
                 {
                     audioFile.DriveLetter = tempDriveLetter + ":\\";
+                    return;
                 }
             }     
 
