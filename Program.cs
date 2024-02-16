@@ -12,6 +12,7 @@ namespace MP3Jukebox
         static void Main(string[] args) 
         {
             Console.ForegroundColor = ConsoleColor.Green;
+            bool IsInAutoPlayMode = false;
             string userVolume = "";
             string defaultVolume = "0.05";
             string searchText = "";
@@ -25,6 +26,8 @@ namespace MP3Jukebox
 
             //Create an AudioFile Object that can hold all the data we need as we pass it thru the methods
             AudioFile audioFile = new AudioFile();
+            audioFile.IsInAutoPlayMode = IsInAutoPlayMode;
+            audioFile.AutoPlayCounter = 0;
             audioFile.CustomCollectionCounter = 0;
             audioFile.Volume = userVolume;
             //audioFile.DriveLetter = driveLetter;
@@ -79,6 +82,7 @@ namespace MP3Jukebox
                 {
                     string[] files = Directory.GetFiles(audioFile.DriveLetter, "*" + audioFile.SearchTerm + "*.mp3", SearchOption.AllDirectories);
                     audioFile.AudioFileCollection = files;
+                    audioFile.IsInAutoPlayMode = true;
                 }
 
                 if (audioFile.AudioFileCollection.Length > 0)
@@ -89,8 +93,11 @@ namespace MP3Jukebox
                     int randomNumber = random.Next(1, audioFile.AudioFileCollection.Length); // The upper limit is exclusive, so we use 101
 
                     fileFound = true;
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(audioFile.AudioFileCollection.Length + " MP3 files found!");
+                    if (audioFile.AutoPlayCounter < 2) {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine(audioFile.AudioFileCollection.Length + " MP3 files found!");
+                    }
+                    
                     //Console.WriteLine("Pickin a Rando # " + randomNumber);
                     audioFile.RandomNumber = randomNumber;
                     PlayMP3(audioFile);
@@ -111,51 +118,7 @@ namespace MP3Jukebox
             }
         }
 
-        /// <summary>
-        /// Searches for an MP3 file in the specified folder that contains the given search parameter in its name.
-        /// </summary>
-        /// <param name="searchParameter">The string to search for in the file name.</param>
-        /// <param name="folderPath">The path to the folder containing the MP3 files.</param>
-        /// <returns>The path to the first matching MP3 file found, or null if no match is found.</returns>
-        public static string FindMp3FileByName(string searchParameter, string folderPath)
-        {
-            // Ensure the folder exists
-            if (!Directory.Exists(folderPath))
-            {
-                Console.WriteLine("The specified folder does not exist.");
-                return null;
-            }
-
-            // Get all MP3 files in the specified folder
-            var files = Directory.GetFiles(folderPath, "*.mp3");
-
-            // Search for the first file that contains the search parameter in its name
-            var matchingFile = files.FirstOrDefault(file => Path.GetFileName(file).Contains(searchParameter, StringComparison.OrdinalIgnoreCase));
-
-            if (!string.IsNullOrEmpty(matchingFile))
-            {
-                using (var ms = System.IO.File.OpenRead(matchingFile))
-                using (var rdr = new Mp3FileReader(ms))
-                using (var wavStream = WaveFormatConversionStream.CreatePcmStream(rdr))
-                using (var baStream = new BlockAlignReductionStream(wavStream))
-                using (var waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
-
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Now Playing:" + matchingFile);
-                    Console.WriteLine(waveOut.Volume.ToString());
-                    waveOut.Init(baStream);
-                    waveOut.Play();                    
-                    while (waveOut.PlaybackState == PlaybackState.Playing)
-                    {
-                        Thread.Sleep(100);
-                    }
-                }
-            }
-
-            return matchingFile; // This will be null if no matching file is found
-        }
-
+       
         static void PlayMP3(AudioFile audioFile) {
             int tempCounter = 0;
     
@@ -186,13 +149,23 @@ namespace MP3Jukebox
                     mp3Volume = 0.05f;
                 }
 
+                Console.WriteLine("Volume: " + waveOut.Volume.ToString());
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Now Playing:" + audioFile.AudioFileCollection[tempCounter]);
-                Console.WriteLine(MetadataExtractor.GetAlbumArtist(audioFile.AudioFileCollection[tempCounter]));
+                Console.WriteLine("Now Playing:");
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine(audioFile.AudioFileCollection[tempCounter]);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("By: " + MetadataExtractor.GetAlbumArtist(audioFile.AudioFileCollection[tempCounter]));
+                Console.WriteLine("Length: " + rdr.TotalTime.ToString());
                 waveOut.Init(baStream);
                 waveOut.Volume = mp3Volume;
-                Console.WriteLine("Volume: " + waveOut.Volume.ToString());
+                
                 waveOut.Play();
+
+                if (audioFile.IsInAutoPlayMode) {
+                    audioFile.AutoPlayCounter = audioFile.AutoPlayCounter + 1;
+                }
+
                 while (waveOut.PlaybackState == PlaybackState.Playing)
                 {
                     Thread.Sleep(100);
@@ -252,6 +225,9 @@ namespace MP3Jukebox
                     return "Error retrieving album artist";
                 }
             }
+
+            
+
         }
 
 
