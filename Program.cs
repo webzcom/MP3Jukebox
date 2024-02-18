@@ -234,12 +234,16 @@ namespace MP3Jukebox
                     keyInfo = Console.ReadKey(true);
                     if (keyInfo.Key == ConsoleKey.UpArrow)
                     {
-                        audioFile.Volume = audioFile.Volume + 0.10f;
+                        audioFile.Volume = audioFile.Volume + (audioFile.Volume * 0.10f);
+                        Console.WriteLine("Volume Increased to " + audioFile.Volume.ToString());
+                        waveOut.Volume = audioFile.Volume;
                     }
 
                     if (keyInfo.Key == ConsoleKey.DownArrow)
                     {
-                        audioFile.Volume = audioFile.Volume - 0.10f;
+                        audioFile.Volume = audioFile.Volume - (audioFile.Volume * 0.10f);
+                        Console.WriteLine("Volume Decrease to " + audioFile.Volume.ToString());
+                        waveOut.Volume = audioFile.Volume;
                     }
 
                     while (!Console.KeyAvailable)
