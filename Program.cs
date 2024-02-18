@@ -27,7 +27,7 @@ namespace MP3Jukebox
             GetDriveLetter(audioFile);
             //Prompt user for a Category and Topic
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Hit Enter for Random Song or Text to Find Create a Custom Playlist:");
+            Console.WriteLine("Hit Enter for Random Song or Search Term for Custom Playlist:");
             Console.ForegroundColor = ConsoleColor.Blue;
             searchText = Console.ReadLine();
             audioFile.SearchTerm = searchText;
@@ -52,6 +52,14 @@ namespace MP3Jukebox
                 try
                 {
                     audioFile.Volume = float.Parse(userVolume);
+                    if (audioFile.Volume > 1.00) {
+
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Setting to Max Value: 1.0");
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        //GetVolume(audioFile);
+                        audioFile.Volume = 1.00f;
+                    }
                 }
                 catch (Exception)
                 {
