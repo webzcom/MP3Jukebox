@@ -36,6 +36,14 @@ namespace MP3Jukebox
             SearchFile(audioFile);
         }
 
+        public static void CheckVolume(AudioFile audioFile) {
+            if (audioFile.Volume > 1.00f) {
+                audioFile.Volume = 1.00f;
+            } else if (audioFile.Volume < 0.00f) {
+                audioFile.Volume = 0.00f;
+            }            
+        }
+
 
         public static void GetVolume(AudioFile audioFile) {
             float defaultVolume = 0.66f;
@@ -235,6 +243,7 @@ namespace MP3Jukebox
                     if (keyInfo.Key == ConsoleKey.UpArrow)
                     {
                         audioFile.Volume = audioFile.Volume + (audioFile.Volume * 0.10f);
+                        CheckVolume(audioFile);
                         Console.WriteLine("Volume Increased to " + audioFile.Volume.ToString());
                         waveOut.Volume = audioFile.Volume;
                     }
@@ -242,6 +251,7 @@ namespace MP3Jukebox
                     if (keyInfo.Key == ConsoleKey.DownArrow)
                     {
                         audioFile.Volume = audioFile.Volume - (audioFile.Volume * 0.10f);
+                        CheckVolume(audioFile);
                         Console.WriteLine("Volume Decrease to " + audioFile.Volume.ToString());
                         waveOut.Volume = audioFile.Volume;
                     }
