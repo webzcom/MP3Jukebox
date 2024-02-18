@@ -165,8 +165,6 @@ namespace MP3Jukebox
                 tempCounter = audioFile.RandomNumber - 1;
             }
 
-
-
             using (var ms = System.IO.File.OpenRead(audioFile.AudioFileCollection[tempCounter]))
             using (var rdr = new Mp3FileReader(ms))
             using (var wavStream = WaveFormatConversionStream.CreatePcmStream(rdr))
@@ -229,19 +227,26 @@ namespace MP3Jukebox
                 }
 
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("Press ESC to stop");
+                Console.WriteLine("Press Spacebar to skip song");
+                ConsoleKeyInfo keyInfo;
                 do
                 {
+                    keyInfo = Console.ReadKey(true);
+
                     while (!Console.KeyAvailable)
                     {
                         // Do something
+                        if (keyInfo.Key == ConsoleKey.UpArrow)
+                        {
+                            audioFile.Volume = audioFile.Volume + 0.40f;
+                        }
                         waveOut.Play(); 
                     }
-                } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
+                } while (Console.ReadKey(true).Key != ConsoleKey.Spacebar);
 
                 waveOut.Stop();
                 SearchFile(audioFile);
-
+                
             }
             
         }
