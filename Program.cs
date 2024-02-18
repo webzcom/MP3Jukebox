@@ -13,36 +13,55 @@ namespace MP3Jukebox
         {
             Console.ForegroundColor = ConsoleColor.Green;
             bool IsInAutoPlayMode = false;
-            string userVolume = "";
-            string defaultVolume = "0.05";
             string searchText = "";
             Console.WriteLine("MP3 Jukebox by Cyber Abyss running as " + Environment.UserName);
-            Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Default: " + defaultVolume + ")");
-            Console.ForegroundColor = ConsoleColor.Blue;
-            userVolume = Console.ReadLine();
-            if (string.IsNullOrEmpty(userVolume)) {
-                userVolume = defaultVolume;
-            };
-
             //Create an AudioFile Object that can hold all the data we need as we pass it thru the methods
             AudioFile audioFile = new AudioFile();
             audioFile.IsInAutoPlayMode = IsInAutoPlayMode;
-            audioFile.AutoPlayCounter = 0;
+            audioFile.AutoPlayCounter = 1;
             audioFile.CustomCollectionCounter = 0;
-            audioFile.Volume = userVolume;
             //audioFile.DriveLetter = driveLetter;
             audioFile.CurrentUser = Environment.UserName;
             audioFile.UserHomeFolder = "C:\\Users\\" + Environment.UserName + "\\";
+            GetVolume(audioFile);
             GetDriveLetter(audioFile);
             //Prompt user for a Category and Topic
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Hit Enter for Random Song or Enter Your Music Search Text:");
+            Console.WriteLine("Hit Enter for Random Song or Text to Find Create a Custom Playlist:");
             Console.ForegroundColor = ConsoleColor.Blue;
             searchText = Console.ReadLine();
             audioFile.SearchTerm = searchText;
             SearchFile(audioFile);
         }
 
+
+        public static void GetVolume(AudioFile audioFile) {
+            float defaultVolume = 0.66f;
+            audioFile.Volume = defaultVolume;
+            string userVolume = "";
+ 
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("Enter the Volume: Range is float from 0.10 to 1.0 (Default: " + defaultVolume.ToString() + ")");
+            userVolume = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(userVolume))
+            {
+                audioFile.Volume = defaultVolume;
+            }
+            else {
+                try
+                {
+                    audioFile.Volume = float.Parse(userVolume);
+                }
+                catch (Exception)
+                {
+                    //throw;
+                    GetVolume(audioFile);
+                }
+
+            }          
+           
+        }
 
         public static void GetDriveLetter(AudioFile audioFile){
             string tempDriveLetter = "";
@@ -82,6 +101,9 @@ namespace MP3Jukebox
                 {
                     string[] files = Directory.GetFiles(audioFile.DriveLetter, "*" + audioFile.SearchTerm + "*.mp3", SearchOption.AllDirectories);
                     audioFile.AudioFileCollection = files;
+                }
+                else {
+
                     audioFile.IsInAutoPlayMode = true;
                 }
 
@@ -121,7 +143,7 @@ namespace MP3Jukebox
        
         static void PlayMP3(AudioFile audioFile) {
             int tempCounter = 0;
-    
+         
             //Play MP3
             //if search term was used, don't use the random number
             if (!string.IsNullOrEmpty(audioFile.SearchTerm))
@@ -140,16 +162,12 @@ namespace MP3Jukebox
             using (var waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
 
             {
-                float mp3Volume = 0.05f;
-                if (!string.IsNullOrEmpty(audioFile.Volume))
-                {
-                    mp3Volume = float.Parse(audioFile.Volume);
-                }
-                else {
-                    mp3Volume = 0.05f;
+                
+                if (audioFile.AutoPlayCounter < 2) {
+                    //Console.WriteLine("Volume: " + waveOut.Volume.ToString());
+                    Console.WriteLine("Volume: " + audioFile.Volume.ToString());
                 }
 
-                Console.WriteLine("Volume: " + waveOut.Volume.ToString());
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Now Playing:");
                 Console.ForegroundColor = ConsoleColor.Blue;
@@ -158,14 +176,13 @@ namespace MP3Jukebox
                 Console.WriteLine("By: " + MetadataExtractor.GetAlbumArtist(audioFile.AudioFileCollection[tempCounter]));
                 Console.WriteLine("Length: " + rdr.TotalTime.ToString());
                 waveOut.Init(baStream);
-                waveOut.Volume = mp3Volume;
-                
+                waveOut.Volume = audioFile.Volume;
                 waveOut.Play();
-
+                
                 if (audioFile.IsInAutoPlayMode) {
                     audioFile.AutoPlayCounter = audioFile.AutoPlayCounter + 1;
                 }
-
+                
                 while (waveOut.PlaybackState == PlaybackState.Playing)
                 {
                     Thread.Sleep(100);
@@ -182,6 +199,7 @@ namespace MP3Jukebox
                     audioFile.CustomCollectionCounter = audioFile.CustomCollectionCounter + 1;
                 }
 
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Press ESC to stop");
                 do
                 {
