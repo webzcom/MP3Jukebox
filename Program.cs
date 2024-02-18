@@ -165,8 +165,6 @@ namespace MP3Jukebox
                 tempCounter = audioFile.RandomNumber - 1;
             }
 
-
-
             using (var ms = System.IO.File.OpenRead(audioFile.AudioFileCollection[tempCounter]))
             using (var rdr = new Mp3FileReader(ms))
             using (var wavStream = WaveFormatConversionStream.CreatePcmStream(rdr))
@@ -196,7 +194,7 @@ namespace MP3Jukebox
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Now Playing:");
+                    Console.WriteLine("Now Playing:" + audioFile.Volume.ToString());
                     Console.ForegroundColor = ConsoleColor.Blue;
                     Console.WriteLine(audioFile.AudioFileCollection[tempCounter]);
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -229,19 +227,31 @@ namespace MP3Jukebox
                 }
 
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("Press ESC to stop");
+                Console.WriteLine("Press Spacebar to skip song");
+                ConsoleKeyInfo keyInfo;
                 do
                 {
+                    keyInfo = Console.ReadKey(true);
+                    if (keyInfo.Key == ConsoleKey.UpArrow)
+                    {
+                        audioFile.Volume = audioFile.Volume + 0.10f;
+                    }
+
+                    if (keyInfo.Key == ConsoleKey.DownArrow)
+                    {
+                        audioFile.Volume = audioFile.Volume - 0.10f;
+                    }
+
                     while (!Console.KeyAvailable)
                     {
                         // Do something
                         waveOut.Play(); 
                     }
-                } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
+                } while (Console.ReadKey(true).Key != ConsoleKey.Spacebar);
 
                 waveOut.Stop();
                 SearchFile(audioFile);
-
+                
             }
             
         }
