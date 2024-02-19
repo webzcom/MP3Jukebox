@@ -240,6 +240,7 @@ namespace MP3Jukebox
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Press Any Key to Play Song or Double Tap the Spacebar to skip song");
                 Console.WriteLine("For Volume Controls Use UP & DOWN Arrows");
+                waveOut.Play();
                 ConsoleKeyInfo keyInfo;
                 do
                 {
@@ -275,8 +276,8 @@ namespace MP3Jukebox
                     if (keyInfo.Key == ConsoleKey.RightArrow)
                     {
                         waveOut.Stop();
+                        audioFile.IsPlaying = true;
                         SearchFile(audioFile);
-                        waveOut.Play();
                     }
 
                     while (!Console.KeyAvailable)
