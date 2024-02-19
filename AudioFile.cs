@@ -19,5 +19,7 @@ namespace MP3Jukebox
         public int CustomCollectionCounter { get; set; }
         public bool IsInAutoPlayMode { get; set; }
         public int AutoPlayCounter { get; set; }
+        public string LastFilePlayedLength { get; set; }
+        public bool IsPlaying { get; set; }
     }
 }
