@@ -286,7 +286,8 @@ namespace MP3Jukebox
                             waveOut.Pause();
                         }
                     }
-                } while (Console.ReadKey(true).Key != ConsoleKey.Spacebar);
+                } while (keyInfo.Key != ConsoleKey.Spacebar);
+                //while (Console.ReadKey(true).Key != ConsoleKey.Spacebar);
 
                 waveOut.Stop();
                 SearchFile(audioFile);
