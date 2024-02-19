@@ -261,17 +261,22 @@ namespace MP3Jukebox
                     }
 
                     //Pause Play Key
-                      if (keyInfo.Key == ConsoleKey.LeftArrow)
-                    {
+                    if (keyInfo.Key == ConsoleKey.LeftArrow){
                         if (audioFile.IsPlaying)
                         {
                             audioFile.IsPlaying = false;
-
                         }
                         else {
                             audioFile.IsPlaying = true;
                         }
+                    }
 
+                    //Skip Key
+                    if (keyInfo.Key == ConsoleKey.RightArrow)
+                    {
+                        waveOut.Stop();
+                        SearchFile(audioFile);
+                        waveOut.Play();
                     }
 
                     while (!Console.KeyAvailable)
