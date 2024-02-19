@@ -19,6 +19,7 @@ namespace MP3Jukebox
             Console.WriteLine("*****************************************************************");
             //Create an AudioFile Object that can hold all the data we need as we pass it thru the methods
             AudioFile audioFile = new AudioFile();
+            audioFile.IsPlaying = false;
             audioFile.IsInAutoPlayMode = IsInAutoPlayMode;
             audioFile.AutoPlayCounter = 1;
             audioFile.CustomCollectionCounter = 0;
@@ -140,6 +141,7 @@ namespace MP3Jukebox
                     
                     //Console.WriteLine("Pickin a Rando # " + randomNumber);
                     audioFile.RandomNumber = randomNumber;
+                    audioFile.IsPlaying = true;
                     PlayMP3(audioFile);
                 }
             }
@@ -231,11 +233,13 @@ namespace MP3Jukebox
                 while (waveOut.PlaybackState == PlaybackState.Playing)
                 {
                     Thread.Sleep(100);
+                    Console.Write(waveOut.GetPosition().ToString());
 
                 }
 
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("Press Spacebar to skip song");
+                Console.WriteLine("Press Any Key to Play Song or Double Tap the Spacebar to skip song");
+                Console.WriteLine("For Volume Controls Use UP & DOWN Arrows");
                 ConsoleKeyInfo keyInfo;
                 do
                 {
@@ -244,7 +248,7 @@ namespace MP3Jukebox
                     {
                         audioFile.Volume = audioFile.Volume + (audioFile.Volume * 0.10f);
                         CheckVolume(audioFile);
-                        Console.WriteLine("Volume Increased to " + audioFile.Volume.ToString());
+                        //Console.WriteLine("Volume Increased to " + audioFile.Volume.ToString());
                         waveOut.Volume = audioFile.Volume;
                     }
 
@@ -252,14 +256,35 @@ namespace MP3Jukebox
                     {
                         audioFile.Volume = audioFile.Volume - (audioFile.Volume * 0.10f);
                         CheckVolume(audioFile);
-                        Console.WriteLine("Volume Decrease to " + audioFile.Volume.ToString());
+                        //Console.WriteLine("Volume Decrease to " + audioFile.Volume.ToString());
                         waveOut.Volume = audioFile.Volume;
+                    }
+
+                    //Pause Play Key
+                      if (keyInfo.Key == ConsoleKey.LeftArrow)
+                    {
+                        if (audioFile.IsPlaying)
+                        {
+                            audioFile.IsPlaying = false;
+
+                        }
+                        else {
+                            audioFile.IsPlaying = true;
+                        }
+
                     }
 
                     while (!Console.KeyAvailable)
                     {
                         // Do something
-                        waveOut.Play(); 
+                        if (audioFile.IsPlaying)
+                        {
+                            waveOut.Play();
+                        }
+                        else
+                        {
+                            waveOut.Pause();
+                        }
                     }
                 } while (Console.ReadKey(true).Key != ConsoleKey.Spacebar);
 
