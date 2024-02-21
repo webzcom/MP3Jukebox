@@ -4,12 +4,13 @@ using System.Threading;
 using NAudio.Wave;
 using System.Linq;
 using TagLib;
+using System.Windows.Forms;
 
 namespace MP3Jukebox
 {
     class Program
     {
-        static void Main(string[] args) 
+        static void Main(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             bool IsInAutoPlayMode = true;
@@ -42,20 +43,25 @@ namespace MP3Jukebox
             SearchFile(audioFile);
         }
 
-        public static void CheckVolume(AudioFile audioFile) {
-            if (audioFile.Volume > 1.00f) {
+        public static void CheckVolume(AudioFile audioFile)
+        {
+            if (audioFile.Volume > 1.00f)
+            {
                 audioFile.Volume = 1.00f;
-            } else if (audioFile.Volume < 0.00f) {
+            }
+            else if (audioFile.Volume < 0.00f)
+            {
                 audioFile.Volume = 0.00f;
-            }            
+            }
         }
 
 
-        public static void GetVolume(AudioFile audioFile) {
+        public static void GetVolume(AudioFile audioFile)
+        {
             float defaultVolume = 0.66f;
             audioFile.Volume = defaultVolume;
             string userVolume = "";
- 
+
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("> Hit Enter for Default Volume: " + defaultVolume.ToString() + ". Range is float from 0.10 to 1.0");
             userVolume = Console.ReadLine();
@@ -64,11 +70,13 @@ namespace MP3Jukebox
             {
                 audioFile.Volume = defaultVolume;
             }
-            else {
+            else
+            {
                 try
                 {
                     audioFile.Volume = float.Parse(userVolume);
-                    if (audioFile.Volume > 1.00) {
+                    if (audioFile.Volume > 1.00)
+                    {
 
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Setting to Max Value: 1.0");
@@ -83,14 +91,16 @@ namespace MP3Jukebox
                     GetVolume(audioFile);
                 }
 
-            }          
-           
+            }
+
         }
 
-        public static void GetDriveLetter(AudioFile audioFile){
+        public static void GetDriveLetter(AudioFile audioFile)
+        {
             string tempDriveLetter = "";
 
-            if (string.IsNullOrEmpty(audioFile.DriveLetter)){
+            if (string.IsNullOrEmpty(audioFile.DriveLetter))
+            {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("> Enter the Drive Letter to Search:");
                 Console.ForegroundColor = ConsoleColor.Blue;
@@ -105,7 +115,7 @@ namespace MP3Jukebox
                     audioFile.DriveLetter = tempDriveLetter + ":\\";
                     return;
                 }
-            }                 
+            }
         }
 
 
@@ -126,20 +136,21 @@ namespace MP3Jukebox
                     string[] files = Directory.GetFiles(audioFile.DriveLetter, "*" + audioFile.SearchTerm + "*.mp3", SearchOption.AllDirectories);
                     audioFile.AudioFileCollection = files;
                 }
-                
+
                 if (audioFile.AudioFileCollection.Length > 0)
                 {
-                    
+
                     fileFound = true;
-                    if (audioFile.AutoPlayCounter < 2) {
+                    if (audioFile.AutoPlayCounter < 2)
+                    {
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.WriteLine(audioFile.AudioFileCollection.Length + " MP3 files found!");
                     }
-                    
+
                     //Console.WriteLine("Pickin a Rando # " + randomNumber);
                     //audioFile.RandomNumber = randomNumber;
                     audioFile.IsPlaying = true;
-                    PlayMP3(audioFile, audioFile.AudioAction);
+                    PlayMP3(audioFile);
                 }
             }
             catch (UnauthorizedAccessException)
@@ -157,8 +168,10 @@ namespace MP3Jukebox
             }
         }
 
-       
-        static void PlayMP3(AudioFile audioFile, Action onPlaybackStopped) {
+
+        static void PlayMP3(AudioFile audioFile)
+        {
+            audioFile.EndOfFile = false;
             int tempCounter = 0;
 
             // Create an instance of the Random class
@@ -173,7 +186,8 @@ namespace MP3Jukebox
             if (!string.IsNullOrEmpty(audioFile.SearchTerm))
             {
                 tempCounter = audioFile.CustomCollectionCounter;
-                if (tempCounter == audioFile.AudioFileCollection.Length) {
+                if (tempCounter == audioFile.AudioFileCollection.Length)
+                {
                     Main(null);
                 }
             }
@@ -189,29 +203,29 @@ namespace MP3Jukebox
             using (var waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
 
             {
-                
-                if (audioFile.AutoPlayCounter < 2) {
+
+                if (audioFile.AutoPlayCounter < 2)
+                {
                     //Console.WriteLine("Volume: " + waveOut.Volume.ToString());
                     Console.WriteLine("Volume: " + audioFile.Volume.ToString());
                 }
 
                 waveOut.Init(rdr);
-                waveOut.PlaybackStopped += (sender, e) =>
-                {
-                    // This event is triggered when playback is stopped
-                    Console.WriteLine($"{ms} playback stopped.");
-                    audioFile.AudioAction = onPlaybackStopped;
-                    //SearchFile(audioFile);
-                    PlayMP3(audioFile, audioFile.AudioAction);
-                    onPlaybackStopped?.Invoke();
-                };
+                //waveOut.PlaybackStopped += (sender, e) =>
+                //{
+                //    // This event is triggered when playback is stopped
+                //    Console.WriteLine($"{ms} playback stopped.");
+                //    PlayMP3(audioFile, audioFile.AudioAction);
+                //    //SearchFile(audioFile);
+                //    onPlaybackStopped?.Invoke();
+                //};
 
                 string mP3Artist = MetadataExtractor.GetAlbumArtist(audioFile.AudioFileCollection[tempCounter]);
                 string currentSongLength = rdr.TotalTime.ToString();
 
                 waveOut.Init(baStream);
                 waveOut.Volume = audioFile.Volume;
-               
+
                 //Skip the song if we've just heard it, maybe come back and update this to an array
                 if (audioFile.LastFilePlayedLength == currentSongLength)
                 {
@@ -222,7 +236,7 @@ namespace MP3Jukebox
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("**********************************************************************");
+                    Console.WriteLine("******************************************************************");
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Now Playing:" + audioFile.Volume.ToString());
                     Console.ForegroundColor = ConsoleColor.Blue;
@@ -233,8 +247,8 @@ namespace MP3Jukebox
                     //waveOut.Play();
                     audioFile.LastFilePlayedLength = currentSongLength;
                 }
-                
-                
+
+
                 //if (audioFile.IsInAutoPlayMode) {
                 //    audioFile.AutoPlayCounter = audioFile.AutoPlayCounter + 1;
                 //}
@@ -242,9 +256,10 @@ namespace MP3Jukebox
                 audioFile.AutoPlayCounter = audioFile.AutoPlayCounter + 1;
 
                 //If we hit the end of the custom collection return the main menu and start again
-                if (audioFile.CustomCollectionCounter == audioFile.AudioFileCollection.Length) {
+                if (audioFile.CustomCollectionCounter == audioFile.AudioFileCollection.Length)
+                {
                     Main(null);
-                }                    
+                }
 
                 //Increment the counter if we are using a custom colleciton
                 if (!string.IsNullOrEmpty(audioFile.SearchTerm))
@@ -259,8 +274,8 @@ namespace MP3Jukebox
 
                 }
 
-
                 waveOut.Play();
+                audioFile.EndOfFile = false;
                 ConsoleKeyInfo keyInfo;
                 do
                 {
@@ -277,17 +292,18 @@ namespace MP3Jukebox
                     {
                         audioFile.Volume = audioFile.Volume - (audioFile.Volume * 0.10f);
                         CheckVolume(audioFile);
-                        //Console.WriteLine("Volume Decrease to " + audioFile.Volume.ToString());
-                        waveOut.Volume = audioFile.Volume;
+                        waveOut.Volume = audioFile.Volume;    
                     }
 
                     //Pause Play Key
-                    if (keyInfo.Key == ConsoleKey.LeftArrow){
+                    if (keyInfo.Key == ConsoleKey.LeftArrow)
+                    {
                         if (audioFile.IsPlaying)
                         {
                             audioFile.IsPlaying = false;
                         }
-                        else {
+                        else
+                        {
                             audioFile.IsPlaying = true;
                         }
                     }
@@ -297,10 +313,11 @@ namespace MP3Jukebox
                     {
                         waveOut.Stop();
                         audioFile.IsPlaying = false;
-                        //SearchFile(audioFile);
+                        SearchFile(audioFile);
+                        //PlayMP3(audioFile);
                     }
 
-                                
+
                     while (!Console.KeyAvailable)
                     {
                         // Do something
@@ -314,17 +331,23 @@ namespace MP3Jukebox
                             waveOut.Pause();
                         }
 
-                       
-                        
+                        if (waveOut.PlaybackState == 0) {
+                            audioFile.EndOfFile = true;
+                            //SearchFile(audioFile);
+                            //SendKeys.SendWait("{RIGHT}");
+                            PlayMP3(audioFile);
+                        }
+
                     }
                 } while (keyInfo.Key != ConsoleKey.Spacebar);
                 //while (Console.ReadKey(true).Key != ConsoleKey.Spacebar);
 
                 waveOut.Stop();
                 SearchFile(audioFile);
-                
+                //PlayMP3(audioFile);
+
             }
-            
+
         }
 
 
@@ -357,7 +380,7 @@ namespace MP3Jukebox
                 }
             }
 
-            
+
 
         }
 
