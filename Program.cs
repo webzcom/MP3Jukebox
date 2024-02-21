@@ -147,8 +147,6 @@ namespace MP3Jukebox
                         Console.WriteLine(audioFile.AudioFileCollection.Length + " MP3 files found!");
                     }
 
-                    //Console.WriteLine("Pickin a Rando # " + randomNumber);
-                    //audioFile.RandomNumber = randomNumber;
                     audioFile.IsPlaying = true;
                     PlayMP3(audioFile);
                 }
@@ -207,18 +205,10 @@ namespace MP3Jukebox
                 if (audioFile.AutoPlayCounter < 2)
                 {
                     //Console.WriteLine("Volume: " + waveOut.Volume.ToString());
-                    Console.WriteLine("Volume: " + audioFile.Volume.ToString());
+                    //Console.WriteLine("Volume: " + audioFile.Volume.ToString());
                 }
 
-                waveOut.Init(rdr);
-                //waveOut.PlaybackStopped += (sender, e) =>
-                //{
-                //    // This event is triggered when playback is stopped
-                //    Console.WriteLine($"{ms} playback stopped.");
-                //    PlayMP3(audioFile, audioFile.AudioAction);
-                //    //SearchFile(audioFile);
-                //    onPlaybackStopped?.Invoke();
-                //};
+                //waveOut.Init(rdr);
 
                 string mP3Artist = MetadataExtractor.GetAlbumArtist(audioFile.AudioFileCollection[tempCounter]);
                 string currentSongLength = rdr.TotalTime.ToString();
@@ -238,7 +228,9 @@ namespace MP3Jukebox
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("******************************************************************");
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Now Playing:" + audioFile.Volume.ToString());
+                    Console.Write("Now Playing @ Volume: ");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine(audioFile.Volume.ToString());
                     Console.ForegroundColor = ConsoleColor.Blue;
                     Console.WriteLine(audioFile.AudioFileCollection[tempCounter]);
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -248,10 +240,6 @@ namespace MP3Jukebox
                     audioFile.LastFilePlayedLength = currentSongLength;
                 }
 
-
-                //if (audioFile.IsInAutoPlayMode) {
-                //    audioFile.AutoPlayCounter = audioFile.AutoPlayCounter + 1;
-                //}
 
                 audioFile.AutoPlayCounter = audioFile.AutoPlayCounter + 1;
 
