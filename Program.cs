@@ -12,19 +12,24 @@ namespace MP3Jukebox
     {
         static void Main(string[] args)
         {
+            //Get system info
+            DriveInfo[] allDrives = DriveInfo.GetDrives();
+
             Console.ForegroundColor = ConsoleColor.Green;
             bool IsInAutoPlayMode = true;
             string searchText = "";
             Console.WriteLine("*****************************************************************");
             Console.WriteLine("*  MP3 Jukebox by Cyber Abyss running as " + Environment.UserName);
             Console.WriteLine("*****************************************************************");
-            //Create an AudioFile Object that can hold all the data we need as we pass it thru the methods
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Left Arrow: Pause/Play Song");
             Console.WriteLine("Right Arrow: Skip Song");
             Console.WriteLine("Volume Down: Arrow Down");
             Console.WriteLine("Volume Up: Arrow Up");
+            //Create an AudioFile Object that can hold all the data we need as we pass it thru the methods
             AudioFile audioFile = new AudioFile();
+            //Put the list of available drives into our object as an array
+            audioFile.DrivesAvailable = DriveInfo.GetDrives().Where(x => x.DriveType == DriveType.Network).Select(d => d.Name).ToArray();
             audioFile.IsPlaying = false;
             audioFile.IsInAutoPlayMode = IsInAutoPlayMode;
             audioFile.AutoPlayCounter = 1;
@@ -98,13 +103,14 @@ namespace MP3Jukebox
         public static void GetDriveLetter(AudioFile audioFile)
         {
             string tempDriveLetter = "";
-
+ 
             if (string.IsNullOrEmpty(audioFile.DriveLetter))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("> Enter the Drive Letter to Search:");
                 Console.ForegroundColor = ConsoleColor.Blue;
-                tempDriveLetter = Console.ReadLine();
+                tempDriveLetter = Console.ReadLine().ToUpper();
+
                 if (string.IsNullOrEmpty(tempDriveLetter) || tempDriveLetter.Length > 1)
                 {
                     Console.WriteLine("> Your Drive Letter Doesn't Look Right, Try Again. Single Character Only Please.");
@@ -112,8 +118,19 @@ namespace MP3Jukebox
                 }
                 else
                 {
-                    audioFile.DriveLetter = tempDriveLetter + ":\\";
-                    return;
+                    tempDriveLetter = tempDriveLetter + ":\\";
+                    bool exists = Array.Exists(audioFile.DrivesAvailable, element => element == tempDriveLetter);
+                    if (exists)
+                    {
+                        audioFile.DriveLetter = tempDriveLetter;
+                        return;
+                    }
+                    else {
+                        Console.WriteLine("That drive letter is not available.");
+                        GetDriveLetter(audioFile);
+                    }
+                    
+                    
                 }
             }
         }
