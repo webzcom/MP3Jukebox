@@ -103,7 +103,9 @@ namespace MP3Jukebox
         public static void GetDriveLetter(AudioFile audioFile)
         {
             string tempDriveLetter = "";
- 
+            //Get system info
+            DriveInfo[] drives = DriveInfo.GetDrives();
+
             if (string.IsNullOrEmpty(audioFile.DriveLetter))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -126,7 +128,16 @@ namespace MP3Jukebox
                         return;
                     }
                     else {
+                        Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine("That drive letter is not available.");
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("Try one of these: ");
+                        // Iterate through each drive and print its name
+                        foreach (DriveInfo drive in drives)
+                        {
+                            Console.Write(drive.Name + " ");
+                        }
+                        Console.WriteLine();
                         GetDriveLetter(audioFile);
                     }
                     
