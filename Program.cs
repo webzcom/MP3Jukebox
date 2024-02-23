@@ -26,6 +26,7 @@ namespace MP3Jukebox
             Console.WriteLine("Right Arrow: Skip Song");
             Console.WriteLine("Volume Down: Arrow Down");
             Console.WriteLine("Volume Up: Arrow Up");
+            Console.WriteLine("Press C to Clear the Screen");
             //Create an AudioFile Object that can hold all the data we need as we pass it thru the methods
             AudioFile audioFile = new AudioFile();
             //Put the list of available drives into our object as an array
@@ -309,6 +310,10 @@ namespace MP3Jukebox
                         audioFile.Volume = audioFile.Volume - (audioFile.Volume * 0.10f);
                         CheckVolume(audioFile);
                         waveOut.Volume = audioFile.Volume;    
+                    }
+
+                    if (keyInfo.Key == ConsoleKey.C) {
+                        Console.Clear();
                     }
 
                     //Pause Play Key
