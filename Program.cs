@@ -128,7 +128,8 @@ namespace MP3Jukebox
                         audioFile.DriveLetter = tempDriveLetter;
                         return;
                     }
-                    else {
+                    else
+                    {
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine("That drive letter is not available.");
                         Console.ForegroundColor = ConsoleColor.Yellow;
@@ -141,8 +142,7 @@ namespace MP3Jukebox
                         Console.WriteLine();
                         GetDriveLetter(audioFile);
                     }
-                    
-                    
+
                 }
             }
         }
@@ -230,14 +230,11 @@ namespace MP3Jukebox
             using (var waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
 
             {
-
                 if (audioFile.AutoPlayCounter < 2)
                 {
                     //Console.WriteLine("Volume: " + waveOut.Volume.ToString());
                     //Console.WriteLine("Volume: " + audioFile.Volume.ToString());
                 }
-
-                //waveOut.Init(rdr);
 
                 string mP3Artist = MetadataExtractor.GetAlbumArtist(audioFile.AudioFileCollection[tempCounter]);
                 string currentSongLength = rdr.TotalTime.ToString();
@@ -268,7 +265,6 @@ namespace MP3Jukebox
                     //waveOut.Play();
                     audioFile.LastFilePlayedLength = currentSongLength;
                 }
-
 
                 audioFile.AutoPlayCounter = audioFile.AutoPlayCounter + 1;
 
@@ -309,11 +305,14 @@ namespace MP3Jukebox
                     {
                         audioFile.Volume = audioFile.Volume - (audioFile.Volume * 0.10f);
                         CheckVolume(audioFile);
-                        waveOut.Volume = audioFile.Volume;    
+                        waveOut.Volume = audioFile.Volume;
                     }
 
-                    if (keyInfo.Key == ConsoleKey.C) {
-                        Console.Clear();
+                    if (keyInfo.Key == ConsoleKey.C)
+                    {
+                        //Console.Clear();
+                        waveOut.Stop();
+                        Main(null);
                     }
 
                     //Pause Play Key
@@ -352,7 +351,8 @@ namespace MP3Jukebox
                             waveOut.Pause();
                         }
 
-                        if (waveOut.PlaybackState == 0) {
+                        if (waveOut.PlaybackState == 0)
+                        {
                             audioFile.EndOfFile = true;
                             //SearchFile(audioFile);
                             //SendKeys.SendWait("{RIGHT}");
