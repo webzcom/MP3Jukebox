@@ -333,6 +333,8 @@ namespace MP3Jukebox
                     {
                         waveOut.Stop();
                         audioFile.IsPlaying = false;
+                        ms.Close();
+                        rdr.Close();
                         SearchFile(audioFile);
                         //PlayMP3(audioFile);
                     }
