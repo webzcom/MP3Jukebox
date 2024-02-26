@@ -26,11 +26,11 @@ namespace MP3Jukebox
             Console.WriteLine("Right Arrow: Skip Song");
             Console.WriteLine("Volume Down: Arrow Down");
             Console.WriteLine("Volume Up: Arrow Up");
-            Console.WriteLine("Press C to Clear the Screen");
+            Console.WriteLine("Press C to Cancel & Goto Main Menu");
             //Create an AudioFile Object that can hold all the data we need as we pass it thru the methods
             AudioFile audioFile = new AudioFile();
             //Put the list of available drives into our object as an array
-            audioFile.DrivesAvailable = DriveInfo.GetDrives().Where(x => x.DriveType == DriveType.Network).Select(d => d.Name).ToArray();
+            audioFile.DrivesAvailable = DriveInfo.GetDrives().Where(x => x.DriveType == DriveType.Network || x.DriveType == DriveType.Fixed || x.DriveType == DriveType.Removable).Select(d => d.Name).ToArray();
             audioFile.IsPlaying = false;
             audioFile.IsInAutoPlayMode = IsInAutoPlayMode;
             audioFile.AutoPlayCounter = 1;
@@ -312,6 +312,11 @@ namespace MP3Jukebox
                     {
                         //Console.Clear();
                         waveOut.Stop();
+                        ms.Close();
+                        rdr.Close();
+                        wavStream.Close();
+                        baStream.Close();
+                        waveOut.Dispose();
                         Main(null);
                     }
 
@@ -335,6 +340,9 @@ namespace MP3Jukebox
                         audioFile.IsPlaying = false;
                         ms.Close();
                         rdr.Close();
+                        wavStream.Close();
+                        baStream.Close();
+                        waveOut.Dispose();
                         SearchFile(audioFile);
                         //PlayMP3(audioFile);
                     }
@@ -357,8 +365,8 @@ namespace MP3Jukebox
                         {
                             audioFile.EndOfFile = true;
                             //SearchFile(audioFile);
-                            //SendKeys.SendWait("{RIGHT}");
-                            PlayMP3(audioFile);
+                            SendKeys.SendWait("{RIGHT}");
+                            //PlayMP3(audioFile);
                         }
 
                     }
