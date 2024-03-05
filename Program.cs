@@ -5,13 +5,22 @@ using NAudio.Wave;
 using System.Linq;
 using TagLib;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 namespace MP3Jukebox
 {
     class Program
     {
+        [DllImport("user32.dll")]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+
         static void Main(string[] args)
         {
+            //Force focus on current window
+           // BringConsoleToFront();
             //Get system info
             DriveInfo[] allDrives = DriveInfo.GetDrives();
 
@@ -173,7 +182,7 @@ namespace MP3Jukebox
                     if (audioFile.AutoPlayCounter < 2)
                     {
                         Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine(audioFile.AudioFileCollection.Length + " MP3 files found!");
+                        Console.WriteLine(audioFile.AudioFileCollection.Length + " MP3 files found! Press Any Key to Continue");
                     }
 
                     audioFile.IsPlaying = true;
@@ -192,6 +201,123 @@ namespace MP3Jukebox
             if (!fileFound)
             {
                 Console.WriteLine("No files found matching the specified name.");
+            }
+        }
+
+
+
+        static void PlayMP3File(AudioFile audioFile) {
+            string mP3Artist = MetadataExtractor.GetAlbumArtist(audioFile.CurrentMP3);  
+
+            using (var ms = System.IO.File.OpenRead(audioFile.CurrentMP3))
+            using (var rdr = new Mp3FileReader(ms))
+            using (var wavStream = WaveFormatConversionStream.CreatePcmStream(rdr))
+            using (var baStream = new BlockAlignReductionStream(wavStream))
+            using (var waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
+            {
+                string currentSongLength = rdr.TotalTime.ToString();
+                waveOut.Init(baStream);
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("******************************************************************");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Now Playing @ Volume: ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(audioFile.Volume.ToString());
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine(audioFile.CurrentMP3);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("By: " + mP3Artist);
+                Console.WriteLine("Length: " + currentSongLength);
+                audioFile.LastFilePlayedLength = currentSongLength;
+                waveOut.Play();
+                ConsoleKeyInfo keyInfo;
+                    do
+                    {
+                        keyInfo = Console.ReadKey(true);
+                        if (keyInfo.Key == ConsoleKey.UpArrow)
+                        {
+                            audioFile.Volume = audioFile.Volume + (audioFile.Volume * 0.10f);
+                            CheckVolume(audioFile);
+                            //Console.WriteLine("Volume Increased to " + audioFile.Volume.ToString());
+                            waveOut.Volume = audioFile.Volume;
+                        }
+
+                        if (keyInfo.Key == ConsoleKey.DownArrow)
+                        {
+                            audioFile.Volume = audioFile.Volume - (audioFile.Volume * 0.10f);
+                            CheckVolume(audioFile);
+                            waveOut.Volume = audioFile.Volume;
+                        }
+
+                        if (keyInfo.Key == ConsoleKey.C)
+                        {
+                            //Console.Clear();
+                            waveOut.Stop();
+                            ms.Close();
+                            rdr.Close();
+                            wavStream.Close();
+                            baStream.Close();
+                            waveOut.Dispose();
+                            Main(null);
+                        }
+
+                        //Pause Play Key
+                        if (keyInfo.Key == ConsoleKey.LeftArrow)
+                        {
+                            if (audioFile.IsPlaying)
+                            {
+                                audioFile.IsPlaying = false;
+                            }
+                            else
+                            {
+                                audioFile.IsPlaying = true;
+                            }
+                        }
+
+                        //Skip Key
+                        if (keyInfo.Key == ConsoleKey.RightArrow)
+                        {
+                            waveOut.Stop();
+                            audioFile.IsPlaying = false;
+                            ms.Close();
+                            rdr.Close();
+                            wavStream.Close();
+                            baStream.Close();
+                            waveOut.Dispose();
+                            SearchFile(audioFile);
+                            //PlayMP3(audioFile);
+                        }
+
+
+                        while (!Console.KeyAvailable)
+                        {
+                            // Do something
+                            if (audioFile.IsPlaying)
+                            {
+                                waveOut.Play();
+                                audioFile.IsStopped = false;
+                            }
+                            else
+                            {
+                                waveOut.Pause();
+                            }
+
+                            if (waveOut.PlaybackState == 0)
+                            {
+                                audioFile.EndOfFile = true;
+                                //SearchFile(audioFile);
+                                SendKeys.SendWait("{RIGHT}");
+                                //PlayMP3(audioFile);
+                            }
+
+                        }
+                    } while (keyInfo.Key != ConsoleKey.Spacebar);
+
+                while (waveOut.PlaybackState == PlaybackState.Playing)
+                {
+                    Thread.Sleep(100);
+                }
+                PlayMP3(audioFile);
             }
         }
 
@@ -223,49 +349,11 @@ namespace MP3Jukebox
                 tempCounter = audioFile.RandomNumber - 1;
             }
 
+            audioFile.CurrentMP3 = audioFile.AudioFileCollection[tempCounter].ToString();
+
             using (var ms = System.IO.File.OpenRead(audioFile.AudioFileCollection[tempCounter]))
-            using (var rdr = new Mp3FileReader(ms))
-            using (var wavStream = WaveFormatConversionStream.CreatePcmStream(rdr))
-            using (var baStream = new BlockAlignReductionStream(wavStream))
-            using (var waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
 
-            {
-                if (audioFile.AutoPlayCounter < 2)
-                {
-                    //Console.WriteLine("Volume: " + waveOut.Volume.ToString());
-                    //Console.WriteLine("Volume: " + audioFile.Volume.ToString());
-                }
-
-                string mP3Artist = MetadataExtractor.GetAlbumArtist(audioFile.AudioFileCollection[tempCounter]);
-                string currentSongLength = rdr.TotalTime.ToString();
-
-                waveOut.Init(baStream);
-                waveOut.Volume = audioFile.Volume;
-
-                //Skip the song if we've just heard it, maybe come back and update this to an array
-                if (audioFile.LastFilePlayedLength == currentSongLength)
-                {
-                    //Skip this song
-                    waveOut.Stop();
-                    Console.WriteLine("Skipping Duplicate Song!");
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("******************************************************************");
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write("Now Playing @ Volume: ");
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine(audioFile.Volume.ToString());
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.WriteLine(audioFile.AudioFileCollection[tempCounter]);
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("By: " + mP3Artist);
-                    Console.WriteLine("Length: " + currentSongLength);
-                    //waveOut.Play();
-                    audioFile.LastFilePlayedLength = currentSongLength;
-                }
-
+            { 
                 audioFile.AutoPlayCounter = audioFile.AutoPlayCounter + 1;
 
                 //If we hit the end of the custom collection return the main menu and start again
@@ -280,107 +368,27 @@ namespace MP3Jukebox
                     audioFile.CustomCollectionCounter = audioFile.CustomCollectionCounter + 1;
                 }
 
-                while (waveOut.PlaybackState == PlaybackState.Playing)
-                {
-                    Thread.Sleep(100);
-                    Console.Write(waveOut.GetPosition().ToString());
 
-                }
-
-                waveOut.Play();
+                PlayMP3File(audioFile);
+                //waveOut.Play();
                 audioFile.EndOfFile = false;
                 ConsoleKeyInfo keyInfo;
-                do
-                {
-                    keyInfo = Console.ReadKey(true);
-                    if (keyInfo.Key == ConsoleKey.UpArrow)
-                    {
-                        audioFile.Volume = audioFile.Volume + (audioFile.Volume * 0.10f);
-                        CheckVolume(audioFile);
-                        //Console.WriteLine("Volume Increased to " + audioFile.Volume.ToString());
-                        waveOut.Volume = audioFile.Volume;
-                    }
-
-                    if (keyInfo.Key == ConsoleKey.DownArrow)
-                    {
-                        audioFile.Volume = audioFile.Volume - (audioFile.Volume * 0.10f);
-                        CheckVolume(audioFile);
-                        waveOut.Volume = audioFile.Volume;
-                    }
-
-                    if (keyInfo.Key == ConsoleKey.C)
-                    {
-                        //Console.Clear();
-                        waveOut.Stop();
-                        ms.Close();
-                        rdr.Close();
-                        wavStream.Close();
-                        baStream.Close();
-                        waveOut.Dispose();
-                        Main(null);
-                    }
-
-                    //Pause Play Key
-                    if (keyInfo.Key == ConsoleKey.LeftArrow)
-                    {
-                        if (audioFile.IsPlaying)
-                        {
-                            audioFile.IsPlaying = false;
-                        }
-                        else
-                        {
-                            audioFile.IsPlaying = true;
-                        }
-                    }
-
-                    //Skip Key
-                    if (keyInfo.Key == ConsoleKey.RightArrow)
-                    {
-                        waveOut.Stop();
-                        audioFile.IsPlaying = false;
-                        ms.Close();
-                        rdr.Close();
-                        wavStream.Close();
-                        baStream.Close();
-                        waveOut.Dispose();
-                        SearchFile(audioFile);
-                        //PlayMP3(audioFile);
-                    }
-
-
-                    while (!Console.KeyAvailable)
-                    {
-                        // Do something
-                        if (audioFile.IsPlaying)
-                        {
-                            waveOut.Play();
-                            audioFile.IsStopped = false;
-                        }
-                        else
-                        {
-                            waveOut.Pause();
-                        }
-
-                        if (waveOut.PlaybackState == 0)
-                        {
-                            audioFile.EndOfFile = true;
-                            //SearchFile(audioFile);
-                            SendKeys.SendWait("{RIGHT}");
-                            //PlayMP3(audioFile);
-                        }
-
-                    }
-                } while (keyInfo.Key != ConsoleKey.Spacebar);
-                //while (Console.ReadKey(true).Key != ConsoleKey.Spacebar);
-
-                waveOut.Stop();
-                SearchFile(audioFile);
-                //PlayMP3(audioFile);
+ 
 
             }
-
         }
 
+            static void BringConsoleToFront()
+            {
+                IntPtr handle = GetConsoleWindow();
+                if (handle != IntPtr.Zero)
+                {
+                    SetForegroundWindow(handle);
+                    Console.WriteLine("We have focus!");
+
+                };
+            }
+        
 
         public class MetadataExtractor
         {
