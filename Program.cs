@@ -182,7 +182,7 @@ namespace MP3Jukebox
                     if (audioFile.AutoPlayCounter < 2)
                     {
                         Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine(audioFile.AudioFileCollection.Length + " MP3 files found! Press Any Key to Continue");
+                        Console.WriteLine(audioFile.AudioFileCollection.Length + " MP3 files found...Here we go!");
                     }
 
                     audioFile.IsPlaying = true;
@@ -311,7 +311,7 @@ namespace MP3Jukebox
                             }
 
                         }
-                    } while (keyInfo.Key != ConsoleKey.Spacebar);
+                    } while (keyInfo.Key != ConsoleKey.Spacebar || waveOut.PlaybackState == PlaybackState.Playing);
 
                 while (waveOut.PlaybackState == PlaybackState.Playing)
                 {
