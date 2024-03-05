@@ -11,6 +11,7 @@ namespace MP3Jukebox
         public string DriveLetter { get; set; }
         public string FilePath { get; set; }
         public string CurrentUser { get; set; }
+        public string CurrentMP3 { get; set; }
         public string UserHomeFolder { get; set; }
         public string[] AudioFileCollection { get; set; }
         public string[] MetaDataCollection { get; set; }
@@ -23,6 +24,8 @@ namespace MP3Jukebox
         public bool IsPlaying { get; set; }
         public bool IsStopped { get; set; }
         public Action AudioAction { get; set; }
+        public bool EndOfFile { get; set; }
+        public string[] DrivesAvailable { get; set; }
 
     }
 }
